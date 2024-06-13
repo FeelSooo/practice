@@ -1,45 +1,54 @@
-using System.Collections;
-using System.Collections.Generic;
+using UnityEngine.UI;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    // Реализация управления с помощью InputSystem
-     
-    [SerializeField] private float moveSpeed = 1f;
 
-    private PlayerControls playerControls;
-    private Vector2 movement; // вектор для хранения направления движения
-    private Rigidbody2D rb; // ссылка на компонент Rigidbody2D, которая юзается для управления физикой объекта 
+    public float speed;
+    private Rigidbody2D rb;
+    public Text collectedText;
+    public static int collectedAmount = 0;
 
-    private void Awake()  // метод вызывается при инициализации скрипта, создается объект для управления вводом
+    public GameObject bulletPrefab;
+    public float bulletSpeed;
+    private float lastFire;
+    public float fireDelay;
+
+    // Start is called before the first frame update
+    void Start()
     {
-        playerControls = new PlayerControls();
         rb = GetComponent<Rigidbody2D>();
     }
 
-    private void OnEnable() // метод вызывается при активации объекта, включается система управления вводом
+    // Update is called once per frame
+    void Update()
     {
-        playerControls.Enable();
-    }
-    private void Update() // обработка ввода игрока, зависим от фпс
-    {
-        PlayerInput();
+        // Движение
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+        // Стрельба
+        float shootHor = Input.GetAxis("ShootHorizontal");
+        float shootVer = Input.GetAxis("ShootVertical");
+        if ((shootHor != 0 || shootVer != 0) && Time.time > lastFire + fireDelay)
+        {
+            Shoot(shootHor, shootVer);
+            lastFire = Time.time;
+        }
+
+        rb.velocity = new Vector3(horizontal * speed, vertical * speed, 0);
+        collectedText.text = "Items Collected" + collectedAmount;
     }
 
-    private void FixedUpdate() // вызывается с фиксированной частотой кадров, синхронизированным с физ.движком, происходит реальное перемещение объекта
-    {                          // не зависим от фпс
-        Move();
-    }
-
-    private void PlayerInput() // считывает ввод игрока, получает значение вектора из схемы ввода
+    void Shoot(float x, float y)
     {
-        movement = playerControls.Movement.Move.ReadValue<Vector2>();
-    }
+        GameObject bullet = Instantiate(bulletPrefab, transform.position, transform.rotation) as GameObject;
+        bullet.AddComponent<Rigidbody2D>().gravityScale = 0;
+        bullet.GetComponent<Rigidbody2D>().velocity = new Vector3(
+            (x < 0) ? Mathf.Floor(x) * bulletSpeed : Mathf.Ceil(x) * bulletSpeed,
+            (y < 0) ? Mathf.Floor(y) * bulletSpeed : Mathf.Ceil(y) * bulletSpeed,
+            0
+            );
+            
 
-    private void Move() // отвечает за перемещение объекта
-    {                   // перемещает Rigidbody2D в новое положение на основе текущей позиции, направления движения и скорости
-        rb.MovePosition(rb.position + movement * (moveSpeed * Time.fixedDeltaTime));
     }
 }
