@@ -36,7 +36,7 @@ public class PlayerController : MonoBehaviour
         }
 
         rb.velocity = new Vector3(horizontal * speed, vertical * speed, 0);
-        collectedText.text = "Items Collected" + collectedAmount;
+        collectedText.text = "Items Collected: " + collectedAmount;
     }
 
     void Shoot(float x, float y)
