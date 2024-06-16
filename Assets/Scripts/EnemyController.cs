@@ -13,19 +13,28 @@ public enum EnemyState
     Attack
 };
 
+public enum EnemyType
+{
+    Mellee,
+
+    Ranged
+};
 public class EnemyController : MonoBehaviour
 {
     GameObject player;
     public EnemyState currState = EnemyState.Wander;
+    public EnemyType enemyType;
 
     public float range;
     public float speed;
     public float attackRange;
     public float coolDown;
+    public float bulletSpeed;
     private bool chooseDir = false;
     private bool dead = false;
     private bool coolDownAttack = false;
     private Vector3 randomDir;
+    public GameObject bulletPrefab;
     
     // Start is called before the first frame update
     void Start()
@@ -104,8 +113,20 @@ public class EnemyController : MonoBehaviour
     {
         if(!coolDownAttack)
         {
-            GameController.DamagePlayer(1);
-            StartCoroutine(CoolDown());
+            switch(enemyType)
+            {
+                case (EnemyType.Mellee):
+                    GameController.DamagePlayer(1);
+                    StartCoroutine(CoolDown());
+                    break;
+                case (EnemyType.Ranged):
+                    GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity) as GameObject;
+                    bullet.GetComponent<BulletController>().GetPlayer(player.transform);
+                    bullet.AddComponent<Rigidbody2D>().gravityScale = 0;
+                    bullet.GetComponent<BulletController>().isEnemyBullet = true;
+                    StartCoroutine(CoolDown());
+                    break; 
+            }
         }
         
     }
