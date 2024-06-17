@@ -54,7 +54,7 @@ public class Room : MonoBehaviour
             }
         }
 
-        RoomController.instance.RegistorRoom(this);
+        RoomController.instance.RegisterRoom(this);
     }
 
     private void Update()

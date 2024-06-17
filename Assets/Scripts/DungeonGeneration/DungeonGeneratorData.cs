@@ -9,4 +9,5 @@ public class DungeonGeneratorData : ScriptableObject
     public int numberOfCrawlers;
     public int iterationMin;
     public int iterationMax;
+     
 }
