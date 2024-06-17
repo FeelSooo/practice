@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,12 +9,17 @@ public class GameController : MonoBehaviour
 {
 
     public static GameController instance;
-
+    // В инспекторе характеристики почему-то не меняются, менять надо тут
     private static float health = 6;
     private static int maxHealth = 6;
-    private static float moveSpeed = 5f;
-    private static float fireRate = 0.5f;
+    private static float moveSpeed = 3f;
+    private static float fireRate = 1.25f;
     private static float bulletSize = 0.5f;
+    private static GameObject player;
+
+    private bool bootCollected = false;
+    private static bool screwCollected = false;
+    public List<string> collectedNames = new List<string>();
 
     public static float Health { get => health; set => health = value; }
     public static int MaxHealth { get => maxHealth; set => maxHealth = value; }
@@ -31,6 +37,8 @@ public class GameController : MonoBehaviour
         {
             instance = this;
         }
+
+        player = GameObject.FindWithTag("Player");
     }
 
     // Update is called once per frame
@@ -69,9 +77,38 @@ public class GameController : MonoBehaviour
         bulletSize += size;
     }
 
+    public void UpdateCollectedItems(CollectionController item)
+    {
+        collectedNames.Add(item.item.name);
+
+        foreach(string i in collectedNames)
+        {
+            switch (i)
+            {
+                case "Boot":
+                    bootCollected = true;
+                    break;
+                case "Screw":
+                    screwCollected = true;
+                    break;
+            }
+        }
+
+        if (bootCollected && screwCollected)
+        {
+            FireRateChange(0.25f);
+        }
+    }
+
     private static void KillPlayer()
     {
+        GameObject.FindWithTag("Player");
 
+        if(player != null)
+        {
+            player.GetComponent<PlayerController>().enabled = false;
+            Destroy(player);
+        }
     }
 
 }
